@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+openai
+ollama
+python-dotenv
+loguru
+langgraph
+langchain-openai
+asyncpg
+pydantic-settings
+pgvector
+docling
+python-multipart
+datastar-py

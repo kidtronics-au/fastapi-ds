@@ -1,0 +1,60 @@
+# Use postgres/example user/password credentials
+services:
+    postgres:
+        hostname: ba8173818b0f
+        environment:
+            - POSTGRES_PASSWORD=kidtronics
+            - PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/16/bin
+            - LANG=en_US.utf8
+            - PG_MAJOR=16
+            - PGDATA=/var/lib/postgresql/data
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        network_mode: bridge
+        ports:
+            - 5432:5432
+        restart: no
+        runtime: runc
+        image: pgvector/pgvector:pg16
+        shm_size: 128mb
+        container_name: my-postgres-db
+    ollama-gpu:
+        environment:
+           - NVIDIA_VISIBLE_DEVICES=all
+           - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+           - OLLAMA_HOST=0.0.0.0
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - driver: nvidia
+                          count: all
+                          capabilities: [gpu]
+        volumes:
+           - ollama_data:/home/guru/Projects/ollama/.models
+        ports:
+           - 11434:11434
+        group_add:
+           - "986"  # Host's docker group GID
+        container_name: ollama-gpu
+        image: ollama/ollama
+    ollama-rocm:
+        environment:
+           - OLLAMA_HOST=0.0.0.0
+        devices:
+           - /dev/kfd
+           - /dev/dri
+        volumes:
+           - ollama_data:/home/guru/Projects/ollama/.models
+        ports:
+           - 11434:11434
+        container_name: ollama-rocm
+        image: ollama/ollama:rocm
+volumes:
+    ollama_data:
+        driver: local
+        driver_opts:
+           type: none
+           device: /home/guru/Projects/ollama/.models
+           o: bind
+    pgdata:
